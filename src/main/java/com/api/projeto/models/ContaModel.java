@@ -1,7 +1,6 @@
 package com.api.projeto.models;
 
 import jakarta.persistence.*;
-
 import java.util.Random;
 
 @Entity
@@ -12,8 +11,6 @@ public class ContaModel {
     Integer idConta;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     ClienteModel clienteConta;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cartaoModel")
-    CartaoModel cartaoModel;
     double saldoConta;
     int agenciaConta;
     int numeroConta;
@@ -45,14 +42,6 @@ public class ContaModel {
 
     public void setClienteConta(ClienteModel clienteConta) {
         this.clienteConta = clienteConta;
-    }
-
-    public CartaoModel getCartaoModel() {
-        return cartaoModel;
-    }
-
-    public void setCartaoModel(CartaoModel cartaoModel) {
-        this.cartaoModel = cartaoModel;
     }
 
     public double getSaldoConta() {
