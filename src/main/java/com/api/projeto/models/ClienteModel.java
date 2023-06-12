@@ -1,6 +1,5 @@
 package com.api.projeto.models;
 
-import com.api.projeto.models.ContaModel;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +13,8 @@ public class ClienteModel {
     private String senhaCliente;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "clienteConta")
     private ContaModel contaCliente;
+
+    public ClienteModel() {}
 
     public Integer getIdCliente() {
         return idCliente;

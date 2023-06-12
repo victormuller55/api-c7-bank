@@ -7,7 +7,6 @@ import com.api.projeto.repository.ContaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 @RestController
@@ -31,21 +30,25 @@ public class ClienteController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity<Object> adicionarValor(@RequestParam Integer id, @RequestParam double value) {
+    @PutMapping()
+    public ResponseEntity<Object> adicionarValor(@RequestParam Integer numeroConta, @RequestParam double value) {
         try {
 
-            Optional<ClienteModel> clienteModel = clienteRepository.findById(id);
+            ContaModel contaModel = contaRepository.findByNumeroConta(numeroConta);
 
-            if (clienteModel.isPresent()) {
-                double novoValor = clienteModel.get().getContaCliente().getSaldoConta() + value;
-                return ResponseEntity.status(HttpStatus.OK).body("Novo valor da conta de " + clienteModel.get().getNomeCliente() + " é: " + novoValor);
+            if(contaModel != null) {
+                double saldoAtual = contaModel.getSaldoConta();
+                double novoSaldo = saldoAtual + value;
+                contaModel.setSaldoConta(novoSaldo);
+                contaRepository.save(contaModel);
+                return ResponseEntity.status(HttpStatus.OK).body("Novo saldo: " + novoSaldo);
             }
 
-            return ResponseEntity.status(HttpStatus.OK).body("Cliente não encontrado");
+            return ResponseEntity.status(HttpStatus.OK).body("Conta não encontrada");
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Não foi possível adicionar o valor: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Não foi possível adicionar o valor: \n\n" + e);
         }
     }
+
 }

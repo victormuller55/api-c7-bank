@@ -16,6 +16,7 @@ public class ContaModel {
     int numeroConta;
     boolean ativo;
 
+    public ContaModel() {}
     public ContaModel(ClienteModel clienteConta) {
 
         Random random = new Random();
