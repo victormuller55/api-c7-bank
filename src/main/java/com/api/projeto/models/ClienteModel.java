@@ -1,5 +1,6 @@
 package com.api.projeto.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,9 +8,16 @@ import jakarta.persistence.*;
 public class ClienteModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     private Integer idCliente;
+
+    @JsonProperty("nome_cliente")
     private String nomeCliente;
-    private Long cpfCliente;
+
+    @JsonProperty("cpf_cliente")
+    private String cpfCliente;
+
+    @JsonProperty("senha_cliente")
     private String senhaCliente;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "clienteConta")
     private ContaModel contaCliente;
@@ -32,11 +40,11 @@ public class ClienteModel {
         this.nomeCliente = nomeCliente;
     }
 
-    public Long getCpfCliente() {
+    public String getCpfCliente() {
         return cpfCliente;
     }
 
-    public void setCpfCliente(Long cpfCliente) {
+    public void setCpfCliente(String cpfCliente) {
         this.cpfCliente = cpfCliente;
     }
 

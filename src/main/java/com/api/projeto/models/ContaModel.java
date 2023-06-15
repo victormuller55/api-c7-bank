@@ -1,5 +1,7 @@
 package com.api.projeto.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.Random;
 
@@ -8,12 +10,21 @@ import java.util.Random;
 public class ContaModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
     Integer idConta;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     ClienteModel clienteConta;
+
+    @JsonProperty("saldo_conta")
     double saldoConta;
-    int agenciaConta;
-    int numeroConta;
+    @JsonProperty("agencia_conta")
+    String agenciaConta;
+
+    @JsonProperty("numero_conta")
+    String numeroConta;
+
+    @JsonProperty("ativo")
     boolean ativo;
 
     public ContaModel() {}
@@ -23,8 +34,8 @@ public class ContaModel {
 
         this.clienteConta = clienteConta;
         this.saldoConta = 0;
-        this.agenciaConta = random.nextInt(99999);
-        this.numeroConta = random.nextInt(99999);
+        this.agenciaConta = String.valueOf(random.nextInt(99999));
+        this.numeroConta = String.valueOf(random.nextInt(99999));
         this.ativo = false;
 
     }
@@ -53,19 +64,19 @@ public class ContaModel {
         this.saldoConta = saldoCliente;
     }
 
-    public int getAgenciaConta() {
+    public String getAgenciaConta() {
         return agenciaConta;
     }
 
-    public void setAgenciaConta(int agenciaConta) {
+    public void setAgenciaConta(String agenciaConta) {
         this.agenciaConta = agenciaConta;
     }
 
-    public int getNumeroConta() {
+    public String getNumeroConta() {
         return numeroConta;
     }
 
-    public void setNumeroConta(int numeroConta) {
+    public void setNumeroConta(String numeroConta) {
         this.numeroConta = numeroConta;
     }
 
