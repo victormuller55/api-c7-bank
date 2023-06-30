@@ -1,9 +1,8 @@
-package com.api.projeto.controllers;
+package com.api.projeto.apic7bank.controllers;
 
 import com.api.projeto.models.ContaModel;
 import com.api.projeto.repository.ClienteRepository;
 import com.api.projeto.repository.ContaRepository;
-import com.api.projeto.response.Error;
 import com.api.projeto.response.Success;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,24 +12,22 @@ import org.springframework.web.bind.annotation.*;
 public class ContaController {
 
     private final ContaRepository contaRepository;
-    private final ClienteRepository clienteRepository;
 
     public ContaController(ContaRepository contaRepository, ClienteRepository clienteRepository) {
         this.contaRepository = contaRepository;
-        this.clienteRepository = clienteRepository;
     }
 
     @PutMapping()
     @RequestMapping("/v1/c7-bank/conta/adicionarSaldo")
-    public ResponseEntity<Object> adicionarSaldo(@RequestParam(value = "conta", required = false) String numeroConta, @RequestParam(value = "valor", required = false) Double valor) {
+    public ResponseEntity<Object> adicionarSaldo(@RequestParam(value="conta", required=false) Integer numeroConta, @RequestParam(value="valor", required=false) Double valor) {
         try {
             if (numeroConta != null && valor != null) {
                 ContaModel contaModel = contaRepository.findByNumeroConta(numeroConta);
                 if (contaModel != null) {
+
                     contaModel.setSaldoConta(contaModel.getSaldoConta() + valor);
                     contaRepository.save(contaModel);
-
-                    return Success.success200(contaModel.getSaldoConta());
+                    return Success.success200(contaModel);
                 }
                 return Error.error400("Conta não encontrada");
             } else {
@@ -43,12 +40,12 @@ public class ContaController {
 
     @PutMapping()
     @RequestMapping("/v1/c7-bank/conta/pagarBoleto")
-    public ResponseEntity<Object> pagar(@RequestParam(value = "conta", required = false) String numeroConta, @RequestParam(value = "valor", required = false) Double boletoValor) {
+    public ResponseEntity<Object> pagar(@RequestParam(value="conta", required=false) Integer numeroConta, @RequestParam(value="valor", required=false) Double boletoValor) {
         try {
             if (numeroConta != null && boletoValor != null) {
                 ContaModel contaModel = contaRepository.findByNumeroConta(numeroConta);
                 if (contaModel != null) {
-                    if (contaModel.getSaldoConta() >= boletoValor) {
+                    if(contaModel.getSaldoConta() >= boletoValor) {
 
                         contaModel.setSaldoConta(contaModel.getSaldoConta() - boletoValor);
                         contaRepository.save(contaModel);
@@ -67,19 +64,19 @@ public class ContaController {
 
     @PutMapping()
     @RequestMapping("/v1/c7-bank/conta/tranferir")
-    public ResponseEntity<Object> tranferir(@RequestParam(value = "contaOrigem", required = false) String numeroContaOrigem, @RequestParam(value = "contaReceber", required = false) String numeroContaReceber, @RequestParam(value = "valor", required = false) Double valor) {
+    public ResponseEntity<Object> tranferir(@RequestParam(value="contaOrigem", required=false) Integer numeroContaOrigem, @RequestParam(value="contaReceber", required=false) Integer numeroContaReceber, @RequestParam(value="valor", required=false) Double valor) {
         try {
             if (numeroContaOrigem != null && numeroContaReceber != null && valor != null) {
 
-                String numeroConta;
+                Integer numeroConta;
 
                 numeroConta = numeroContaOrigem;
                 ContaModel contaOrigem = contaRepository.findByNumeroConta(numeroConta);
                 numeroConta = numeroContaReceber;
-                ContaModel contaReceber = contaRepository.findByNumeroConta(numeroConta);
+                ContaModel contaReceber= contaRepository.findByNumeroConta(numeroConta);
 
-                if (contaOrigem != null && contaReceber != null) {
-                    if (contaOrigem.getSaldoConta() >= valor) {
+                if(contaOrigem != null && contaReceber != null) {
+                    if(contaOrigem.getSaldoConta() >= valor) {
 
                         contaOrigem.setSaldoConta(contaOrigem.getSaldoConta() - valor);
                         contaReceber.setSaldoConta(contaReceber.getSaldoConta() + valor);
@@ -87,6 +84,7 @@ public class ContaController {
                         contaRepository.save(contaReceber);
 
                         return Success.success200(contaOrigem.getSaldoConta());
+
                     }
                     return Error.error400("Saldo insuficiente para tranferencia");
                 }
@@ -100,28 +98,23 @@ public class ContaController {
 
     @PutMapping()
     @RequestMapping("/v1/c7-bank/conta/pix")
-        public ResponseEntity<Object> pix(@RequestParam(value = "contaOrigem", required = false) String numeroConta, @RequestParam(value = "cpf", required = false) String cpfCliente, @RequestParam(value = "valor", required = false) Double valor) {
+        public ResponseEntity<Object> pix(@RequestParam(value="conta", required=false) Integer numeroConta, @RequestParam(value="pixValor", required=false) Double pixValor) {
         try {
-            if (numeroConta != null && cpfCliente != null && valor != null) {
+            if (numeroConta != null && pixValor != null) {
+                ContaModel contaModel = contaRepository.findByNumeroConta(numeroConta);
+                if (contaModel != null) {
+                    if(contaModel.getSaldoConta() >= pixValor) {
 
-                ContaModel contaOrigem = contaRepository.findByNumeroConta(numeroConta);
-                ContaModel contaReceber = clienteRepository.findByCpfCliente(cpfCliente).getContaCliente();
+                        contaModel.setSaldoConta(contaModel.getSaldoConta() - pixValor);
+                        contaRepository.save(contaModel);
 
-                if (contaOrigem != null && contaReceber != null) {
-                    if (contaOrigem.getSaldoConta() >= valor) {
-
-                        contaOrigem.setSaldoConta(contaOrigem.getSaldoConta() - valor);
-                        contaReceber.setSaldoConta(contaReceber.getSaldoConta() + valor);
-                        contaRepository.save(contaOrigem);
-                        contaRepository.save(contaReceber);
-
-                        return Success.success200(contaOrigem.getSaldoConta());
+                        return Success.success200(contaModel.getSaldoConta());
                     }
-                    return Error.error400("Saldo insuficiente para tranferencia");
+                    return Error.error400("Saldo insuficiente");
                 }
                 return Error.error400("Conta não encontrada");
             }
-            return Error.error400("Os parametros 'contaOrigem', 'contaReceber' e 'valor' são obrigatório");
+            return Error.error400("Os parametros 'numeroConta' e 'pixValor' são obrigatório");
         } catch (Exception e) {
             return Error.error500(e);
         }

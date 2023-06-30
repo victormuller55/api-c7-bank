@@ -5,10 +5,10 @@ import com.api.projeto.models.ContaModel;
 import com.api.projeto.repository.ContaRepository;
 import com.api.projeto.response.Error;
 import com.api.projeto.response.Success;
-import com.api.projeto.util.Formatters;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @CrossOrigin(maxAge = 3600)
@@ -24,8 +24,6 @@ public class ClienteController {
     public ResponseEntity<Object> cadastrar(@RequestBody ClienteModel clienteModel) {
         try {
             ContaModel contaModel = new ContaModel(clienteModel);
-
-            clienteModel.setCpfCliente(Formatters.cpfFormatado(clienteModel.getCpfCliente()));
             contaRepository.save(contaModel);
             return Success.success200(contaModel);
         } catch (Exception e) {
@@ -34,9 +32,16 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> get() {
+    public ResponseEntity<Object> entrar(@RequestParam(value = "numero", required = false) String numeroConta, @RequestParam(value = "agencia", required = false) String agencia, @RequestParam(value = "senha", required = false) String senha) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(contaRepository.findAll());
+            if (numeroConta != null && agencia != null && senha != null) {
+                ContaModel contaModel = contaRepository.findByNumeroConta(numeroConta);
+                if (Objects.equals(contaModel.getNumeroConta(), numeroConta) && Objects.equals(contaModel.getAgenciaConta(), agencia) && Objects.equals(contaModel.getClienteConta().getSenhaCliente(), senha)) {
+                    return Success.success200(contaModel);
+                }
+                return Error.error400("Conta não encontrada");
+            }
+            return Error.error400("Todos os parametros são obrigatórios");
         } catch (Exception e) {
             return Error.error500(e);
         }

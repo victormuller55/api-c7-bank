@@ -1,4 +1,4 @@
-package com.api.projeto.models;
+package com.api.projeto.apic7bank.models;
 
 public class ErrorModel {
     private String tipo;

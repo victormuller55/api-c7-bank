@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ContaRepository extends JpaRepository<ContaModel, Integer> {
-    ContaModel findByNumeroConta(Integer numeroConta);
+    ContaModel findByNumeroConta(String numeroConta);
 }
